@@ -14,3 +14,4 @@ public class DiscoveryServerApplication {
 	}
 
 }
+//http://localhost:8761/
