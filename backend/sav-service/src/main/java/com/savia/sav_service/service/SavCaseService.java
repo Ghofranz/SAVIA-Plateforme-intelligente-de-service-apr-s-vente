@@ -26,12 +26,12 @@ public class SavCaseService {
     private final SavCaseStatusHistoryRepository statusHistoryRepository;
 
     @Transactional
-    public SavCaseResponse createSavCase(CreateSavCaseRequest request) {
+    public SavCaseResponse createSavCase(CreateSavCaseRequest request, Long createdByAuthUserId) {
         SavCase savCase = SavCase.builder()
                 .caseReference(generateCaseReference())
                 .customerId(request.customerId())
                 .customerProductId(request.customerProductId())
-                .createdByAuthUserId(request.createdByAuthUserId())
+                .createdByAuthUserId(createdByAuthUserId)
                 .title(request.title())
                 .description(request.description())
                 .priority(request.priority())
@@ -44,7 +44,7 @@ public class SavCaseService {
                 .savCase(savedSavCase)
                 .oldStatus(null)
                 .newStatus(SavCaseStatus.CREATED)
-                .changedByAuthUserId(request.createdByAuthUserId())
+                .changedByAuthUserId(createdByAuthUserId)
                 .comment("SAV case created")
                 .build();
 
@@ -107,7 +107,11 @@ public class SavCaseService {
     }
 
     @Transactional
-    public SavCaseResponse updateSavCaseStatus(Long id, UpdateSavCaseStatusRequest request) {
+    public SavCaseResponse updateSavCaseStatus(
+            Long id,
+            UpdateSavCaseStatusRequest request,
+            Long changedByAuthUserId
+    ) {
         SavCase savCase = savCaseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("SAV case not found"));
 
@@ -130,7 +134,7 @@ public class SavCaseService {
                 .savCase(savedSavCase)
                 .oldStatus(oldStatus)
                 .newStatus(newStatus)
-                .changedByAuthUserId(request.changedByAuthUserId())
+                .changedByAuthUserId(changedByAuthUserId)
                 .comment(request.comment())
                 .build();
 

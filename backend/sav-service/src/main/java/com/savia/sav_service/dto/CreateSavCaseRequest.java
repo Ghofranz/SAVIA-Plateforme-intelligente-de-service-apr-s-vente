@@ -11,9 +11,6 @@ public record CreateSavCaseRequest(
         @NotNull(message = "Customer product id is required")
         Long customerProductId,
 
-        @NotNull(message = "Creator auth user id is required")
-        Long createdByAuthUserId,
-
         @NotBlank(message = "Title is required")
         String title,
 

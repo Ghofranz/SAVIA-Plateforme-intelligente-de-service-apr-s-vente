@@ -6,10 +6,12 @@ import com.savia.sav_service.dto.SavCaseResponse;
 import com.savia.sav_service.dto.SavCaseStatusHistoryResponse;
 import com.savia.sav_service.dto.UpdateSavCaseStatusRequest;
 import com.savia.sav_service.enums.SavCaseStatus;
+import com.savia.sav_service.security.AuthenticatedUser;
 import com.savia.sav_service.service.SavCaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,12 @@ public class SavCaseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SavCaseResponse createSavCase(@Valid @RequestBody CreateSavCaseRequest request) {
-        return savCaseService.createSavCase(request);
+    public SavCaseResponse createSavCase(
+            @Valid @RequestBody CreateSavCaseRequest request,
+            Authentication authentication
+    ) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return savCaseService.createSavCase(request, user.userId());
     }
 
     @GetMapping("/{id}")
@@ -63,9 +69,11 @@ public class SavCaseController {
     @PutMapping("/{id}/status")
     public SavCaseResponse updateSavCaseStatus(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateSavCaseStatusRequest request
+            @Valid @RequestBody UpdateSavCaseStatusRequest request,
+            Authentication authentication
     ) {
-        return savCaseService.updateSavCaseStatus(id, request);
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return savCaseService.updateSavCaseStatus(id, request, user.userId());
     }
 
     @GetMapping("/{id}/history")

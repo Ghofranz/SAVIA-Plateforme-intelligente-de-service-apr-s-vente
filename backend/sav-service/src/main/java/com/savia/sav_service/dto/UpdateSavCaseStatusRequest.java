@@ -7,9 +7,6 @@ public record UpdateSavCaseStatusRequest(
         @NotNull(message = "New status is required")
         SavCaseStatus newStatus,
 
-        @NotNull(message = "Changed by auth user id is required")
-        Long changedByAuthUserId,
-
         String comment
 ) {
 }
