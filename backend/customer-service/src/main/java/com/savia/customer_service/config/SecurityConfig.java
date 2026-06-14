@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.http.HttpMethod;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -27,6 +27,16 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/customers")
+                        .hasRole("CLIENT")
+
+                        .requestMatchers("/api/customers/**")
+                        .hasAnyRole("AGENT", "MANAGER", "ADMIN")
+
+                        .requestMatchers("/api/customer-products/**")
+                        .hasAnyRole("CLIENT", "AGENT", "MANAGER", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
