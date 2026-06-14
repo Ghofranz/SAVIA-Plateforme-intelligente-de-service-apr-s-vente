@@ -17,13 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
+import com.savia.sav_service.event.SavCaseEventProducer;
 @Service
 @RequiredArgsConstructor
 public class SavCaseService {
 
     private final SavCaseRepository savCaseRepository;
     private final SavCaseStatusHistoryRepository statusHistoryRepository;
+    private final SavCaseEventProducer savCaseEventProducer;
 
     @Transactional
     public SavCaseResponse createSavCase(CreateSavCaseRequest request, Long createdByAuthUserId) {
@@ -49,6 +50,7 @@ public class SavCaseService {
                 .build();
 
         statusHistoryRepository.save(history);
+        savCaseEventProducer.publishSavCaseCreated(savedSavCase);
 
         return mapToResponse(savedSavCase);
     }
@@ -139,6 +141,12 @@ public class SavCaseService {
                 .build();
 
         statusHistoryRepository.save(history);
+        savCaseEventProducer.publishSavCaseStatusUpdated(
+                savedSavCase,
+                oldStatus,
+                changedByAuthUserId,
+                request.comment()
+        );
 
         return mapToResponse(savedSavCase);
     }
