@@ -15,8 +15,8 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
 
     @Transactional
-    public CustomerResponse createCustomer(CreateCustomerRequest request) {
-        if (customerRepository.existsByAuthUserId(request.authUserId())) {
+    public CustomerResponse createCustomer(CreateCustomerRequest request, Long authUserId) {
+        if (customerRepository.existsByAuthUserId(authUserId)) {
             throw new IllegalArgumentException("Customer already exists for this auth user id");
         }
 
@@ -25,7 +25,7 @@ public class CustomerService {
         }
 
         Customer customer = Customer.builder()
-                .authUserId(request.authUserId())
+                .authUserId(authUserId)
                 .firstname(request.firstname())
                 .lastname(request.lastname())
                 .email(request.email())
@@ -37,7 +37,6 @@ public class CustomerService {
 
         return mapToResponse(savedCustomer);
     }
-
     @Transactional(readOnly = true)
     public CustomerResponse getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)

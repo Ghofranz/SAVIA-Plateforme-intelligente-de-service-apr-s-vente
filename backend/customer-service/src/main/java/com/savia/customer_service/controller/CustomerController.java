@@ -7,7 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import com.savia.customer_service.security.AuthenticatedUser;
+import org.springframework.security.core.Authentication;
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
@@ -17,8 +18,12 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponse createCustomer(@Valid @RequestBody CreateCustomerRequest request) {
-        return customerService.createCustomer(request);
+    public CustomerResponse createCustomer(
+            @Valid @RequestBody CreateCustomerRequest request,
+            Authentication authentication
+    ) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return customerService.createCustomer(request, user.userId());
     }
 
     @GetMapping("/{id}")
