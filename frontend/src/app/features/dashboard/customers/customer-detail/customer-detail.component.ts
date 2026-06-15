@@ -26,11 +26,11 @@ export class CustomerDetailComponent implements OnInit {
   constructor(private route: ActivatedRoute, private customerService: CustomerService) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id') || '';
     this.customerService.getCustomerById(id).subscribe(c => {
       this.customer = c;
-      this.customerService.getProductsByCustomer(id).subscribe({
-        next: (p) => { this.products = p; this.loading = false; },
+      this.customerService.getProductsByCustomerId(id).subscribe({
+        next: (p: CustomerProduct[]) => { this.products = p; this.loading = false; },
         error: () => { this.loading = false; }
       });
     });

@@ -1,22 +1,15 @@
 @use '@angular/material' as mat;
 
-@include mat.core();
-
-$primary: mat.define-palette(mat.$indigo-palette, 800, 600, 900);
-$accent: mat.define-palette(mat.$teal-palette, 500, 300, 700);
-$warn: mat.define-palette(mat.$red-palette);
-
-$theme: mat.define-light-theme((
-  color: (
-    primary: $primary,
-    accent: $accent,
-    warn: $warn
-  ),
-  typography: mat.define-typography-config(),
-  density: 0
-));
-
-@include mat.all-component-themes($theme);
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$cyan-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
 
 * {
   box-sizing: border-box;

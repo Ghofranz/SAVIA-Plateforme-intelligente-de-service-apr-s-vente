@@ -60,13 +60,13 @@ export class SavCaseDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id') || '';
     this.sav.getCaseById(id).subscribe(c => {
       this.savCase = c;
       this.statusForm.patchValue({ status: c.status });
     });
     this.sav.getCaseHistory(id).subscribe({
-      next: h => { this.history = h; this.loading = false; },
+      next: (h: SavCaseStatusHistory[]) => { this.history = h; this.loading = false; },
       error: () => { this.loading = false; }
     });
   }

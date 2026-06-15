@@ -32,7 +32,7 @@ export class SavCaseCreateComponent implements OnInit {
   loadingProducts = false;
   products: CustomerProduct[] = [];
   error = '';
-  customerId: number | null = null;
+  customerId: string | null = null;
 
   priorities = [
     { value: 'LOW', label: 'Basse' },
@@ -64,7 +64,7 @@ export class SavCaseCreateComponent implements OnInit {
       this.customerService.getCustomerByAuthUserId(user.id).subscribe({
         next: (customer) => {
           this.customerId = customer.id;
-          this.customerService.getProductsByCustomer(customer.id).subscribe({
+          this.customerService.getProductsByCustomerId(customer.id).subscribe({
             next: (products) => { this.products = products; this.loadingProducts = false; },
             error: () => { this.loadingProducts = false; }
           });

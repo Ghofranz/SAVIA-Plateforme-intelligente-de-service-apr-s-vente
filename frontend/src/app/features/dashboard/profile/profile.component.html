@@ -38,15 +38,6 @@
               <div class="field-value">#{{ user.id }}</div>
             </div>
           </div>
-          @if (user.createdAt) {
-            <div class="field-row">
-              <mat-icon>calendar_today</mat-icon>
-              <div>
-                <div class="field-label">Membre depuis</div>
-                <div class="field-value">{{ user.createdAt | date:'dd/MM/yyyy' }}</div>
-              </div>
-            </div>
-          }
         </div>
 
         <mat-divider style="margin: 20px 0;"></mat-divider>

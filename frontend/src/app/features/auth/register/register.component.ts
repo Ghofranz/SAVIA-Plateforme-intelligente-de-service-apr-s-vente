@@ -24,14 +24,7 @@ import { UserRole } from '../../../core/models/user.model';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  form = this.fb.group({
-    firstname: ['', Validators.required],
-    lastname: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['CLIENT' as UserRole, Validators.required]
-  });
-
+  form;
   loading = false;
   error = '';
   hidePassword = true;
@@ -44,7 +37,15 @@ export class RegisterComponent {
     { value: 'ADMIN', label: 'Administrateur' }
   ];
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {}
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    this.form = this.fb.group({
+      firstname: ['', Validators.required],
+      lastname: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      role: ['CLIENT' as UserRole, Validators.required]
+    });
+  }
 
   onSubmit(): void {
     if (this.form.invalid) return;

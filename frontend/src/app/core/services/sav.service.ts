@@ -29,12 +29,12 @@ export class SavService {
     return this.http.get<SavCase[]>(this.API_URL);
   }
 
-  assignCase(id: string, data: { agentId?: string; technicianId?: string }): Observable<SavCase> {
-    return this.http.put<SavCase>(`${this.API_URL}/${id}/assign`, data);
+  assignCase(id: string, agentId?: string, technicianId?: string): Observable<SavCase> {
+    return this.http.put<SavCase>(`${this.API_URL}/${id}/assign`, { agentId, technicianId });
   }
 
-  updateStatus(id: string, data: { status: SavCaseStatus; comment?: string }): Observable<SavCase> {
-    return this.http.put<SavCase>(`${this.API_URL}/${id}/status`, data);
+  updateStatus(id: string, status: SavCaseStatus, comment?: string): Observable<SavCase> {
+    return this.http.put<SavCase>(`${this.API_URL}/${id}/status`, { status, comment });
   }
 
   getCaseHistory(id: string): Observable<SavCaseStatusHistory[]> {

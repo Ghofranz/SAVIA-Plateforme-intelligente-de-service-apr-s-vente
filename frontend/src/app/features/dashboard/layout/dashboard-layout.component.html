@@ -11,18 +11,18 @@
     <mat-divider></mat-divider>
 
     <div class="user-info">
-      <div class="avatar">{{ user?.firstname?.[0] }}{{ user?.lastname?.[0] }}</div>
+      <div class="avatar">{{ currentUser?.firstname?.[0] }}{{ currentUser?.lastname?.[0] }}</div>
       <div class="user-details">
-        <span class="user-name">{{ user?.firstname }} {{ user?.lastname }}</span>
-        <span class="user-role">{{ roleLabel }}</span>
+        <span class="user-name">{{ currentUser?.firstname }} {{ currentUser?.lastname }}</span>
+        <span class="user-role">{{ getRoleLabel(currentUser?.role || '') }}</span>
       </div>
     </div>
 
     <mat-divider></mat-divider>
 
     <mat-nav-list class="nav-list">
-      @for (item of visibleNavItems; track item.path) {
-        <a mat-list-item [routerLink]="item.path" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: item.exact }">
+      @for (item of filteredNavItems; track item.route) {
+        <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: item.exact }">
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
         </a>
