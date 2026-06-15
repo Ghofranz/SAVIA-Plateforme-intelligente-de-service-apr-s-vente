@@ -1,0 +1,90 @@
+<div class="auth-page">
+  <section class="auth-card">
+    <div class="auth-header">
+      <h1>Créer un compte</h1>
+      <p>Inscris-toi pour accéder à la plateforme SAVIA.</p>
+    </div>
+
+    @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <div class="name-row">
+        <label>
+          Prénom
+          <input
+            type="text"
+            formControlName="firstname"
+            placeholder="Raniya"
+          />
+        </label>
+
+        <label>
+          Nom
+          <input
+            type="text"
+            formControlName="lastname"
+            placeholder="Zouaghi"
+          />
+        </label>
+      </div>
+
+      @if (hasError('firstname') || hasError('lastname')) {
+      <small>Prénom et nom requis.</small>
+      }
+
+      <label>
+        Email
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="client@test.com"
+        />
+      </label>
+
+      @if (hasError('email')) {
+      <small>Email valide requis.</small>
+      }
+
+      <label>
+        Mot de passe
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Minimum 8 caractères"
+        />
+      </label>
+
+      @if (hasError('password')) {
+      <small>Le mot de passe doit contenir au moins 8 caractères.</small>
+      }
+
+      <label>
+        Rôle
+        <select formControlName="role">
+          @for (role of roles; track role.value) {
+          <option [value]="role.value">
+            {{ role.label }}
+          </option>
+          }
+        </select>
+      </label>
+
+      @if (hasError('role')) {
+      <small>Rôle requis.</small>
+      }
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Création...' : 'Créer le compte' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Déjà un compte ?
+      <a routerLink="/login">Se connecter</a>
+    </p>
+  </section>
+</div>

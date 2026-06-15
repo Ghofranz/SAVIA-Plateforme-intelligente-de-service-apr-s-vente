@@ -1,0 +1,55 @@
+<div class="dashboard-page">
+  <header class="topbar">
+    <div>
+      <h1>SAVIA</h1>
+      <p>Plateforme intelligente de service après-vente</p>
+    </div>
+
+    <button type="button" (click)="logout()">
+      Déconnexion
+    </button>
+  </header>
+
+  <main class="dashboard-content">
+    @if (authService.currentUser(); as user) {
+    <section class="welcome-card">
+      <div>
+        <span class="badge">{{ roleLabel(user.role) }}</span>
+        <h2>Bonjour {{ user.firstname }} {{ user.lastname }}</h2>
+        <p>{{ user.email }}</p>
+      </div>
+    </section>
+    } @else {
+    <section class="welcome-card">
+      <h2>Chargement du profil...</h2>
+      <p>Merci de patienter.</p>
+    </section>
+    }
+
+    <section class="cards-grid">
+      <article class="dashboard-card">
+        <h3>Clients</h3>
+        <p>Consulter et gérer les informations clients.</p>
+        <a routerLink="/customers">Ouvrir</a>
+      </article>
+
+      <article class="dashboard-card">
+        <h3>Produits client</h3>
+        <p>Suivre les produits liés à chaque client.</p>
+        <a routerLink="/customer-products">Ouvrir</a>
+      </article>
+
+      <article class="dashboard-card">
+        <h3>Dossiers SAV</h3>
+        <p>Créer, suivre et traiter les demandes SAV.</p>
+        <a routerLink="/sav-cases">Ouvrir</a>
+      </article>
+
+      <article class="dashboard-card">
+        <h3>Statut système</h3>
+        <p>Vérifier rapidement que la session utilisateur est active.</p>
+        <span class="status">Connecté</span>
+      </article>
+    </section>
+  </main>
+</div>

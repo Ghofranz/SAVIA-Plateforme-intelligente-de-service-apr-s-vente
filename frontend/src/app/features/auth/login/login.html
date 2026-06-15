@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <section class="auth-card">
+    <div class="auth-header">
+      <h1>Connexion</h1>
+      <p>Connecte-toi à la plateforme SAVIA.</p>
+    </div>
+
+    @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <label>
+        Email
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="client@test.com"
+        />
+      </label>
+
+      @if (hasError('email')) {
+      <small>Email valide requis.</small>
+      }
+
+      <label>
+        Mot de passe
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Password123"
+        />
+      </label>
+
+      @if (hasError('password')) {
+      <small>Mot de passe requis.</small>
+      }
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Pas encore de compte ?
+      <a routerLink="/register">Créer un compte</a>
+    </p>
+  </section>
+</div>
