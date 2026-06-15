@@ -20,6 +20,12 @@ loadComponent: () =>
       import('./features/dashboard/dashboard').then((m) => m.Dashboard)
   },
   {
+    path: 'customers',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/customers/customers').then((m) => m.Customers)
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'dashboard'

@@ -1,0 +1,87 @@
+<div class="customers-page">
+  <header class="page-header">
+    <div>
+      <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+      <h1>Mon profil client</h1>
+      <p>Compléter les informations métier liées à ton compte SAVIA.</p></div>
+  </header>
+
+  <main class="page-content">
+    <section class="form-card">
+      <h2>Informations client</h2>
+      @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+      }
+
+      @if (successMessage) {
+      <div class="success-message">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="customer-form">
+        <div class="name-row">
+          <label>
+            Prénom
+            <input type="text" formControlName="firstname" placeholder="Raniya" />
+          </label>
+
+          <label>
+            Nom
+            <input type="text" formControlName="lastname" placeholder="Zouaghi" />
+          </label>
+        </div>
+
+        @if (hasError('firstname') || hasError('lastname')) {
+        <small>Prénom et nom requis.</small>
+        }
+
+        <label>
+          Email
+          <input type="email" formControlName="email" placeholder="client@savia.com" />
+        </label>
+
+        @if (hasError('email')) {
+        <small>Email valide requis.</small>
+        }
+
+        <label>
+          Téléphone
+          <input type="text" formControlName="phoneNumber" placeholder="+216 00 000 000" />
+        </label>
+
+        @if (hasError('phoneNumber')) {
+        <small>Numéro de téléphone requis.</small>
+        }
+
+        <label>
+          Adresse
+          <textarea formControlName="address" rows="3" placeholder="Adresse du client"></textarea>
+        </label>
+
+        @if (hasError('address')) {
+        <small>Adresse requise.</small>
+        }
+
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer mon profil' }}        </button>
+      </form>
+    </section>
+
+    @if (createdCustomer) {
+    <section class="result-card">
+      <h2>Profil client enregistré</h2>
+      <div class="customer-details">
+        <p><strong>ID :</strong> {{ createdCustomer.id }}</p>
+        <p><strong>User ID :</strong> {{ createdCustomer.authUserId }}</p>
+        <p><strong>Nom :</strong> {{ createdCustomer.firstname }} {{ createdCustomer.lastname }}</p>
+        <p><strong>Email :</strong> {{ createdCustomer.email }}</p>
+        <p><strong>Téléphone :</strong> {{ createdCustomer.phoneNumber }}</p>
+        <p><strong>Adresse :</strong> {{ createdCustomer.address }}</p>
+      </div>
+    </section>
+    }
+  </main>
+</div>
