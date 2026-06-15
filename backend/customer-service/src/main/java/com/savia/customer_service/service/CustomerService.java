@@ -3,6 +3,8 @@ package com.savia.customer_service.service;
 import com.savia.customer_service.dto.CreateCustomerRequest;
 import com.savia.customer_service.dto.CustomerResponse;
 import com.savia.customer_service.entity.Customer;
+import com.savia.customer_service.exception.ConflictException;
+import com.savia.customer_service.exception.ResourceNotFoundException;
 import com.savia.customer_service.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,11 @@ public class CustomerService {
     @Transactional
     public CustomerResponse createCustomer(CreateCustomerRequest request, Long authUserId) {
         if (customerRepository.existsByAuthUserId(authUserId)) {
-            throw new IllegalArgumentException("Customer already exists for this auth user id");
+            throw new ConflictException("Customer already exists for this auth user id");
         }
 
         if (customerRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already used by another customer");
+            throw new ConflictException("Email is already used by another customer");
         }
 
         Customer customer = Customer.builder()
@@ -37,10 +39,11 @@ public class CustomerService {
 
         return mapToResponse(savedCustomer);
     }
+
     @Transactional(readOnly = true)
     public CustomerResponse getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         return mapToResponse(customer);
     }
@@ -48,7 +51,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerResponse getCustomerByAuthUserId(Long authUserId) {
         Customer customer = customerRepository.findByAuthUserId(authUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         return mapToResponse(customer);
     }
@@ -56,7 +59,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerResponse getCustomerByEmail(String email) {
         Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         return mapToResponse(customer);
     }

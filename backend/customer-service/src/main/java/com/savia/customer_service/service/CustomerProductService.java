@@ -4,6 +4,8 @@ import com.savia.customer_service.dto.CreateCustomerProductRequest;
 import com.savia.customer_service.dto.CustomerProductResponse;
 import com.savia.customer_service.entity.Customer;
 import com.savia.customer_service.entity.CustomerProduct;
+import com.savia.customer_service.exception.ConflictException;
+import com.savia.customer_service.exception.ResourceNotFoundException;
 import com.savia.customer_service.repository.CustomerProductRepository;
 import com.savia.customer_service.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,11 @@ public class CustomerProductService {
     @Transactional
     public CustomerProductResponse createCustomerProduct(CreateCustomerProductRequest request) {
         if (customerProductRepository.existsBySerialNumber(request.serialNumber())) {
-            throw new IllegalArgumentException("Serial number is already used");
+            throw new ConflictException("Serial number is already used");
         }
 
         Customer customer = customerRepository.findById(request.customerId())
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         CustomerProduct product = CustomerProduct.builder()
                 .customer(customer)
@@ -46,7 +48,7 @@ public class CustomerProductService {
     @Transactional(readOnly = true)
     public CustomerProductResponse getProductById(Long id) {
         CustomerProduct product = customerProductRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Customer product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer product not found"));
 
         return mapToResponse(product);
     }
@@ -54,7 +56,7 @@ public class CustomerProductService {
     @Transactional(readOnly = true)
     public List<CustomerProductResponse> getProductsByCustomerId(Long customerId) {
         if (!customerRepository.existsById(customerId)) {
-            throw new IllegalArgumentException("Customer not found");
+            throw new ResourceNotFoundException("Customer not found");
         }
 
         return customerProductRepository.findByCustomerId(customerId)
