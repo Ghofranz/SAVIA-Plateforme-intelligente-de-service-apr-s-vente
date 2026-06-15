@@ -3,12 +3,20 @@
     <div>
       <a routerLink="/dashboard" class="back-link">← Dashboard</a>
       <h1>Mon profil client</h1>
-      <p>Compléter les informations métier liées à ton compte SAVIA.</p></div>
+      <p>Compléter les informations métier liées à ton compte SAVIA.</p>
+    </div>
   </header>
 
   <main class="page-content">
     <section class="form-card">
       <h2>Informations client</h2>
+
+      @if (loadingProfile) {
+      <div class="info-message">
+        Chargement du profil client...
+      </div>
+      }
+
       @if (errorMessage) {
       <div class="error-message">
         {{ errorMessage }}
@@ -18,6 +26,12 @@
       @if (successMessage) {
       <div class="success-message">
         {{ successMessage }}
+      </div>
+      }
+
+      @if (customerProfile) {
+      <div class="info-message">
+        Profil déjà enregistré. Les informations sont affichées ci-dessous.
       </div>
       }
 
@@ -65,21 +79,27 @@
         <small>Adresse requise.</small>
         }
 
-        <button type="submit" [disabled]="loading">
-          {{ loading ? 'Enregistrement...' : 'Enregistrer mon profil' }}        </button>
+        <button type="submit" [disabled]="loading || !!customerProfile">
+          @if (customerProfile) {
+          Profil déjà enregistré
+          } @else {
+          {{ loading ? 'Enregistrement...' : 'Enregistrer mon profil' }}
+          }
+        </button>
       </form>
     </section>
 
-    @if (createdCustomer) {
+    @if (customerProfile) {
     <section class="result-card">
       <h2>Profil client enregistré</h2>
+
       <div class="customer-details">
-        <p><strong>ID :</strong> {{ createdCustomer.id }}</p>
-        <p><strong>User ID :</strong> {{ createdCustomer.authUserId }}</p>
-        <p><strong>Nom :</strong> {{ createdCustomer.firstname }} {{ createdCustomer.lastname }}</p>
-        <p><strong>Email :</strong> {{ createdCustomer.email }}</p>
-        <p><strong>Téléphone :</strong> {{ createdCustomer.phoneNumber }}</p>
-        <p><strong>Adresse :</strong> {{ createdCustomer.address }}</p>
+        <p><strong>ID profil client :</strong> {{ customerProfile.id }}</p>
+        <p><strong>User ID :</strong> {{ customerProfile.authUserId }}</p>
+        <p><strong>Nom :</strong> {{ customerProfile.firstname }} {{ customerProfile.lastname }}</p>
+        <p><strong>Email :</strong> {{ customerProfile.email }}</p>
+        <p><strong>Téléphone :</strong> {{ customerProfile.phoneNumber }}</p>
+        <p><strong>Adresse :</strong> {{ customerProfile.address }}</p>
       </div>
     </section>
     }

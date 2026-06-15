@@ -16,6 +16,10 @@ constructor(private readonly http: HttpClient) {}
     return this.http.post<CustomerResponse>(this.apiUrl, request);
   }
 
+  getMyCustomerProfile(): Observable<CustomerResponse> {
+    return this.http.get<CustomerResponse>(`${this.apiUrl}/me`);
+  }
+
   getCustomerById(id: number): Observable<CustomerResponse> {
     return this.http.get<CustomerResponse>(`${this.apiUrl}/${id}`);
   }

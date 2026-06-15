@@ -1,0 +1,121 @@
+<div class="products-page">
+  <header class="page-header">
+    <div>
+      <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+      <h1>Produits client</h1>
+      <p>Enregistrer les produits liés à ton profil client SAVIA.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="form-card">
+      <h2>Nouveau produit</h2>
+
+      @if (loadingProfile) {
+      <div class="info-message">
+        Chargement du profil client...
+      </div>
+      }
+
+      @if (customerProfile) {
+      <div class="info-message">
+        Produit lié au profil client : {{ customerProfile.firstname }} {{ customerProfile.lastname }}
+        — ID profil : {{ customerProfile.id }}
+      </div>
+      }
+
+      @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+      }
+
+      @if (successMessage) {
+      <div class="success-message">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="product-form">
+        <div class="name-row">
+          <label>
+            Nom du produit
+            <input
+              type="text"
+              formControlName="productName"
+              placeholder="Laptop"
+            />
+          </label>
+
+          <label>
+            Marque
+            <input
+              type="text"
+              formControlName="brand"
+              placeholder="Dell"
+            />
+          </label>
+        </div>
+
+        @if (hasError('productName') || hasError('brand')) {
+        <small>Nom du produit et marque requis.</small>
+        }
+
+        <label>
+          Modèle
+          <input
+            type="text"
+            formControlName="model"
+            placeholder="Inspiron 15"
+          />
+        </label>
+
+        <label>
+          Numéro de série
+          <input
+            type="text"
+            formControlName="serialNumber"
+            placeholder="SN-2026-001"
+          />
+        </label>
+
+        @if (hasError('serialNumber')) {
+        <small>Numéro de série requis.</small>
+        }
+
+        <div class="name-row">
+          <label>
+            Date d’achat
+            <input type="date" formControlName="purchaseDate" />
+          </label>
+
+          <label>
+            Fin de garantie
+            <input type="date" formControlName="warrantyEndDate" />
+          </label>
+        </div>
+
+        <button type="submit" [disabled]="loading || loadingProfile || !customerProfile">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer le produit' }}
+        </button>
+      </form>
+    </section>
+
+    @if (createdProduct) {
+    <section class="result-card">
+      <h2>Produit enregistré</h2>
+
+      <div class="product-details">
+        <p><strong>ID produit :</strong> {{ createdProduct.id }}</p>
+        <p><strong>ID profil client :</strong> {{ createdProduct.customerId }}</p>
+        <p><strong>Produit :</strong> {{ createdProduct.productName }}</p>
+        <p><strong>Marque :</strong> {{ createdProduct.brand }}</p>
+        <p><strong>Modèle :</strong> {{ createdProduct.model || 'Non renseigné' }}</p>
+        <p><strong>Numéro de série :</strong> {{ createdProduct.serialNumber }}</p>
+        <p><strong>Date d’achat :</strong> {{ createdProduct.purchaseDate || 'Non renseignée' }}</p>
+        <p><strong>Fin de garantie :</strong> {{ createdProduct.warrantyEndDate || 'Non renseignée' }}</p>
+      </div>
+    </section>
+    }
+  </main>
+</div>

@@ -25,6 +25,12 @@ loadComponent: () =>
     loadComponent: () =>
       import('./features/customers/customers').then((m) => m.Customers)
   },
+{
+    path: 'customer-products',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/customer-products/customer-products').then((m) => m.CustomerProducts)
+  },
   {
     path: '',
     pathMatch: 'full',
