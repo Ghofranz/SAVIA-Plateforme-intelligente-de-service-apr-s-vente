@@ -2,13 +2,14 @@ package com.savia.customer_service.controller;
 
 import com.savia.customer_service.dto.CreateCustomerRequest;
 import com.savia.customer_service.dto.CustomerResponse;
+import com.savia.customer_service.security.AuthenticatedUser;
 import com.savia.customer_service.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import com.savia.customer_service.security.AuthenticatedUser;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
@@ -24,6 +25,12 @@ public class CustomerController {
     ) {
         AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
         return customerService.createCustomer(request, user.userId());
+    }
+
+    @GetMapping("/me")
+    public CustomerResponse getMyCustomerProfile(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return customerService.getCustomerByAuthUserId(user.userId());
     }
 
     @GetMapping("/{id}")
