@@ -1,0 +1,83 @@
+<div class="auth-container">
+  <mat-card class="auth-card" style="max-width: 480px;">
+    <mat-card-content>
+      <div class="logo-area">
+        <mat-icon class="logo-icon">build_circle</mat-icon>
+        <h1>SAVIA</h1>
+        <p>Créer votre compte</p>
+      </div>
+
+      @if (error) {
+        <div class="error-message">
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">error</mat-icon>
+          {{ error }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom</mat-label>
+            <input matInput formControlName="firstname">
+            @if (form.get('firstname')?.hasError('required')) {
+              <mat-error>Prénom requis</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="lastname">
+            @if (form.get('lastname')?.hasError('required')) {
+              <mat-error>Nom requis</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Adresse e-mail</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput type="email" formControlName="email">
+          @if (form.get('email')?.hasError('required')) {
+            <mat-error>L'e-mail est requis</mat-error>
+          }
+          @if (form.get('email')?.hasError('email')) {
+            <mat-error>Format d'e-mail invalide</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Mot de passe</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.hasError('minlength')) {
+            <mat-error>Minimum 6 caractères</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Rôle</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-select formControlName="role">
+            @for (role of roles; track role.value) {
+              <mat-option [value]="role.value">{{ role.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading" style="margin-top: 8px; height: 44px;">
+          @if (loading) {
+            <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+          }
+          Créer mon compte
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Déjà un compte ? <a routerLink="/login">Se connecter</a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

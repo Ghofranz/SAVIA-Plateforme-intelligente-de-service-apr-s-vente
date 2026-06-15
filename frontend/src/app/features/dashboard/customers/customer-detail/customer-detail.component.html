@@ -1,0 +1,75 @@
+<div class="page-content" style="max-width: 1000px;">
+  <div class="page-header">
+    <button mat-icon-button routerLink="/dashboard/customers">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Détail client</h2>
+  </div>
+
+  @if (loading) {
+    <div style="display:flex; justify-content:center; padding:60px;"><mat-spinner></mat-spinner></div>
+  } @else if (customer) {
+    <mat-card style="margin-bottom: 16px;">
+      <mat-card-content style="padding-top: 16px;">
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+          <div class="big-avatar">{{ customer.firstname[0] }}{{ customer.lastname[0] }}</div>
+          <div>
+            <h3 style="margin: 0 0 4px; font-size: 20px;">{{ customer.firstname }} {{ customer.lastname }}</h3>
+            <span style="color: #78909c;">{{ customer.email }}</span>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="info-grid" style="margin-top: 16px;">
+          <div class="info-item">
+            <label>Téléphone</label>
+            <span>{{ customer.phoneNumber || 'Non renseigné' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Adresse</label>
+            <span>{{ customer.address || 'Non renseignée' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Client depuis</label>
+            <span>{{ customer.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Produits enregistrés ({{ products.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (products.length === 0) {
+          <p style="color: #90a4ae; text-align: center; padding: 24px;">Aucun produit enregistré</p>
+        } @else {
+          <table mat-table [dataSource]="products" style="width: 100%;">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>Produit</th>
+              <td mat-cell *matCellDef="let p">{{ p.productName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="brand">
+              <th mat-header-cell *matHeaderCellDef>Marque</th>
+              <td mat-cell *matCellDef="let p">{{ p.brand }}</td>
+            </ng-container>
+            <ng-container matColumnDef="model">
+              <th mat-header-cell *matHeaderCellDef>Modèle</th>
+              <td mat-cell *matCellDef="let p">{{ p.model }}</td>
+            </ng-container>
+            <ng-container matColumnDef="serial">
+              <th mat-header-cell *matHeaderCellDef>N° Série</th>
+              <td mat-cell *matCellDef="let p"><code>{{ p.serialNumber || '—' }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="warranty">
+              <th mat-header-cell *matHeaderCellDef>Fin de garantie</th>
+              <td mat-cell *matCellDef="let p">{{ p.warrantyEndDate | date:'dd/MM/yyyy' }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: productColumns;"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

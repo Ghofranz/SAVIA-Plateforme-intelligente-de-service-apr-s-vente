@@ -1,0 +1,18 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+}
+
+.left-col, .right-col { display: flex; flex-direction: column; }
+
+.badges { display: flex; gap: 8px; margin-bottom: 12px; }
+
+.detail-section { padding-top: 16px !important; }

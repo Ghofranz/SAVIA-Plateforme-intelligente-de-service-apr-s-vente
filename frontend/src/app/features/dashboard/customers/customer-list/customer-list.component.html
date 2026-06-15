@@ -1,0 +1,55 @@
+<div class="page-content">
+  <div class="page-header">
+    <h2>Clients <span style="font-size: 14px; color: #78909c; font-weight: 400;">({{ customers.length }})</span></h2>
+  </div>
+
+  @if (loading) {
+    <div style="display:flex; justify-content:center; padding:60px;"><mat-spinner></mat-spinner></div>
+  } @else {
+    <div class="table-container">
+      <table mat-table [dataSource]="customers">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nom</th>
+          <td mat-cell *matCellDef="let c">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="avatar-sm">{{ c.firstname[0] }}{{ c.lastname[0] }}</div>
+              <span>{{ c.firstname }} {{ c.lastname }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let c">{{ c.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef>Téléphone</th>
+          <td mat-cell *matCellDef="let c">{{ c.phoneNumber || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Inscrit le</th>
+          <td mat-cell *matCellDef="let c">{{ c.createdAt | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let c">
+            <button mat-icon-button color="primary" [routerLink]="['/dashboard/customers', c.id]" matTooltip="Voir détail">
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length" style="text-align:center; padding:40px; color:#90a4ae;">
+            Aucun client trouvé
+          </td>
+        </tr>
+      </table>
+    </div>
+  }
+</div>

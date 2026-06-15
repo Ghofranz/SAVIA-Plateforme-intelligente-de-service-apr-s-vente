@@ -1,0 +1,65 @@
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <h2>Bonjour, {{ user?.firstname }} !</h2>
+      <p class="subtitle">Bienvenue sur la plateforme SAVIA</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/dashboard/sav-cases/new">
+      <mat-icon>add</mat-icon>
+      Nouveau dossier
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading"><mat-spinner></mat-spinner></div>
+  } @else {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-icon>folder_open</mat-icon>
+        <div class="stat-number">{{ stats.total }}</div>
+        <div class="stat-label">Total dossiers</div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-icon>pending</mat-icon>
+        <div class="stat-number">{{ stats.open }}</div>
+        <div class="stat-label">En cours</div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-number">{{ stats.resolved }}</div>
+        <div class="stat-label">Résolus</div>
+      </mat-card>
+      <mat-card class="stat-card urgent">
+        <mat-icon>priority_high</mat-icon>
+        <div class="stat-number">{{ stats.urgent }}</div>
+        <div class="stat-label">Urgents</div>
+      </mat-card>
+    </div>
+
+    <mat-card class="recent-card">
+      <mat-card-header>
+        <mat-card-title>Dossiers récents</mat-card-title>
+        <span class="spacer"></span>
+        <a mat-button color="primary" routerLink="/dashboard/sav-cases">Voir tout</a>
+      </mat-card-header>
+      <mat-card-content>
+        @if (recentCases.length === 0) {
+          <div class="empty">
+            <mat-icon>inbox</mat-icon>
+            <p>Aucun dossier pour le moment</p>
+            <button mat-raised-button color="primary" routerLink="/dashboard/sav-cases/new">Créer un dossier</button>
+          </div>
+        } @else {
+          @for (c of recentCases; track c.id) {
+            <div class="case-row" [routerLink]="['/dashboard/sav-cases', c.id]">
+              <span class="ref">{{ c.caseReference }}</span>
+              <span class="title">{{ c.title }}</span>
+              <span class="status-badge status-{{ c.status }}">{{ getStatusLabel(c.status) }}</span>
+              <span class="priority-badge priority-{{ c.priority }}">{{ c.priority }}</span>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

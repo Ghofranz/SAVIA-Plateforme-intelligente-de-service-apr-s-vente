@@ -1,0 +1,63 @@
+<div class="page-content" style="max-width: 600px;">
+  <div class="page-header">
+    <h2>Mon profil</h2>
+  </div>
+
+  @if (user) {
+    <mat-card>
+      <mat-card-content style="padding-top: 16px;">
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+          <div class="big-avatar">{{ user.firstname[0] }}{{ user.lastname[0] }}</div>
+          <div>
+            <h3 style="margin: 0 0 8px; font-size: 22px; font-weight: 500;">{{ user.firstname }} {{ user.lastname }}</h3>
+            <span class="role-badge">{{ roleLabel }}</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="fields" style="margin-top: 20px;">
+          <div class="field-row">
+            <mat-icon>email</mat-icon>
+            <div>
+              <div class="field-label">Email</div>
+              <div class="field-value">{{ user.email }}</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <mat-icon>badge</mat-icon>
+            <div>
+              <div class="field-label">Rôle</div>
+              <div class="field-value">{{ roleLabel }}</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <mat-icon>tag</mat-icon>
+            <div>
+              <div class="field-label">Identifiant</div>
+              <div class="field-value">#{{ user.id }}</div>
+            </div>
+          </div>
+          @if (user.createdAt) {
+            <div class="field-row">
+              <mat-icon>calendar_today</mat-icon>
+              <div>
+                <div class="field-label">Membre depuis</div>
+                <div class="field-value">{{ user.createdAt | date:'dd/MM/yyyy' }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <mat-divider style="margin: 20px 0;"></mat-divider>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button mat-raised-button color="warn" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Se déconnecter
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

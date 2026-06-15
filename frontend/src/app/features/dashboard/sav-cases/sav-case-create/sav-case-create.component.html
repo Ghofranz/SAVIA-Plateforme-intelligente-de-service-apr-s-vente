@@ -1,0 +1,70 @@
+<div class="page-content" style="max-width: 700px;">
+  <div class="page-header">
+    <button mat-icon-button routerLink="/dashboard/sav-cases">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Nouveau dossier SAV</h2>
+  </div>
+
+  <mat-card>
+    <mat-card-content style="padding-top: 16px;">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Titre du dossier</mat-label>
+          <input matInput formControlName="title" placeholder="Ex: Écran cassé, Appareil ne démarre plus...">
+          @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
+            <mat-error>Le titre est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description du problème</mat-label>
+          <textarea matInput formControlName="description" rows="5" placeholder="Décrivez le problème en détail..."></textarea>
+          @if (form.get('description')?.hasError('required') && form.get('description')?.touched) {
+            <mat-error>La description est requise</mat-error>
+          }
+        </mat-form-field>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <mat-form-field appearance="outline">
+            <mat-label>Priorité</mat-label>
+            <mat-select formControlName="priority">
+              @for (p of priorities; track p.value) {
+                <mat-option [value]="p.value">{{ p.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Produit concerné</mat-label>
+            <mat-select formControlName="customerProductId">
+              @if (loadingProducts) {
+                <mat-option disabled>Chargement...</mat-option>
+              }
+              @for (p of products; track p.id) {
+                <mat-option [value]="p.id">{{ p.brand }} {{ p.model }} — {{ p.productName }}</mat-option>
+              }
+            </mat-select>
+            @if (products.length === 0 && !loadingProducts) {
+              <mat-hint>Aucun produit enregistré pour votre compte</mat-hint>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (error) {
+          <div class="error-message" style="margin-bottom: 12px;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">error</mat-icon>
+            {{ error }}
+          </div>
+        }
+
+        <div class="form-actions">
+          <button mat-button type="button" routerLink="/dashboard/sav-cases">Annuler</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading || form.invalid">
+            @if (loading) { <mat-spinner diameter="18"></mat-spinner> } @else { Créer le dossier }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
