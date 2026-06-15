@@ -1,0 +1,180 @@
+<div class="sav-page">
+  <header class="page-header">
+    <div>
+      <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+      <h1>Dossiers SAV</h1>
+      <p>Créer et suivre les demandes SAV liées à tes produits.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="form-card">
+      <h2>Nouveau dossier SAV</h2>
+
+      @if (loadingProfile) {
+      <div class="info-message">
+        Chargement du profil client...
+      </div>
+      }
+
+      @if (customerProfile) {
+      <div class="info-message">
+        Dossier lié au profil client : {{ customerProfile.firstname }} {{ customerProfile.lastname }}
+        — ID profil : {{ customerProfile.id }}
+      </div>
+      }
+
+      @if (loadingProducts) {
+      <div class="info-message">
+        Chargement des produits...
+      </div>
+      }
+
+      @if (!loadingProducts && products.length === 0 && customerProfile) {
+      <div class="info-message">
+        Aucun produit enregistré. Ajoute d’abord un produit dans la page Produits client.
+      </div>
+      }
+
+      @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+      }
+
+      @if (successMessage) {
+      <div class="success-message">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="sav-form">
+        <label>
+          Produit concerné
+          <select formControlName="customerProductId">
+            <option [ngValue]="0">Sélectionner un produit</option>
+
+            @for (product of products; track product.id) {
+            <option [ngValue]="product.id">
+              {{ product.productName }} — {{ product.brand }} — {{ product.serialNumber }}
+            </option>
+            }
+          </select>
+        </label>
+
+        @if (hasError('customerProductId')) {
+        <small>Produit requis.</small>
+        }
+
+        <label>
+          Titre
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Exemple : Problème d’écran"
+          />
+        </label>
+
+        @if (hasError('title')) {
+        <small>Titre requis.</small>
+        }
+
+        <label>
+          Description
+          <textarea
+            formControlName="description"
+            rows="4"
+            placeholder="Décris le problème rencontré..."
+          ></textarea>
+        </label>
+
+        @if (hasError('description')) {
+        <small>Description requise.</small>
+        }
+
+        <label>
+          Priorité
+          <select formControlName="priority">
+            @for (priority of priorities; track priority.value) {
+            <option [value]="priority.value">
+              {{ priority.label }}
+            </option>
+            }
+          </select>
+        </label>
+
+        <button
+          type="submit"
+          [disabled]="loading || loadingProfile || loadingProducts || !customerProfile || products.length === 0"
+        >
+          {{ loading ? 'Création...' : 'Créer le dossier SAV' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="result-card">
+      <h2>Mes dossiers SAV</h2>
+
+      @if (loadingCases) {
+      <div class="info-message">
+        Chargement des dossiers SAV...
+      </div>
+      }
+
+      @if (!loadingCases && savCases.length === 0) {
+      <div class="info-message">
+        Aucun dossier SAV créé pour le moment.
+      </div>
+      }
+
+      @if (savCases.length > 0) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Produit</th>
+            <th>Titre</th>
+            <th>Statut</th>
+            <th>Priorité</th>
+            <th>Créé le</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          @for (savCase of savCases; track savCase.id) {
+          <tr>
+            <td>{{ savCase.caseReference }}</td>
+            <td>{{ productLabel(savCase.customerProductId) }}</td>
+            <td>{{ savCase.title }}</td>
+            <td>
+                    <span class="status-pill">
+                      {{ statusLabel(savCase.status) }}
+                    </span>
+            </td>
+            <td>{{ savCase.priority || '—' }}</td>
+            <td>{{ savCase.createdAt | date:'short' }}</td>
+          </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      }
+    </section>
+
+    @if (createdCase) {
+    <section class="result-card">
+      <h2>Dernier dossier créé</h2>
+
+      <div class="case-details">
+        <p><strong>ID dossier :</strong> {{ createdCase.id }}</p>
+        <p><strong>Référence :</strong> {{ createdCase.caseReference }}</p>
+        <p><strong>Produit :</strong> {{ productLabel(createdCase.customerProductId) }}</p>
+        <p><strong>Titre :</strong> {{ createdCase.title }}</p>
+        <p><strong>Statut :</strong> {{ statusLabel(createdCase.status) }}</p>
+        <p><strong>Priorité :</strong> {{ createdCase.priority || 'Non renseignée' }}</p>
+      </div>
+    </section>
+    }
+  </main>
+</div>
