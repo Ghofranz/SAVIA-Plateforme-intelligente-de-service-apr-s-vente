@@ -3,7 +3,7 @@
     <div>
       <a routerLink="/dashboard" class="back-link">← Dashboard</a>
       <h1>Produits client</h1>
-      <p>Enregistrer les produits liés à ton profil client SAVIA.</p>
+      <p>Enregistrer et consulter les produits liés à ton profil client SAVIA.</p>
     </div>
   </header>
 
@@ -101,9 +101,55 @@
       </form>
     </section>
 
+    <section class="result-card">
+      <h2>Mes produits</h2>
+
+      @if (loadingProducts) {
+      <div class="info-message">
+        Chargement des produits...
+      </div>
+      }
+
+      @if (!loadingProducts && products.length === 0) {
+      <div class="info-message">
+        Aucun produit enregistré pour le moment.
+      </div>
+      }
+
+      @if (products.length > 0) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produit</th>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Numéro de série</th>
+            <th>Garantie</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          @for (product of products; track product.id) {
+          <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.productName }}</td>
+            <td>{{ product.brand }}</td>
+            <td>{{ product.model || '—' }}</td>
+            <td>{{ product.serialNumber }}</td>
+            <td>{{ product.warrantyEndDate || 'Non renseignée' }}</td>
+          </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      }
+    </section>
+
     @if (createdProduct) {
     <section class="result-card">
-      <h2>Produit enregistré</h2>
+      <h2>Dernier produit enregistré</h2>
 
       <div class="product-details">
         <p><strong>ID produit :</strong> {{ createdProduct.id }}</p>

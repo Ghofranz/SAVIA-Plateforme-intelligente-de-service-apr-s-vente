@@ -25,10 +25,13 @@ private readonly customerProductApiService = inject(CustomerProductApiService);
 
 loading = false;
 loadingProfile = false;
+loadingProducts = false;
 errorMessage = '';
 successMessage = '';
+
 customerProfile: CustomerResponse | null = null;
 createdProduct: CustomerProductResponse | null = null;
+products: CustomerProductResponse[] = [];
 
 readonly form = this.formBuilder.nonNullable.group({
 productName: ['', [Validators.required]],
@@ -51,6 +54,7 @@ ngOnInit(): void {
       next: (customer) => {
         this.loadingProfile = false;
         this.customerProfile = customer;
+        this.loadMyProducts();
       },
       error: (error) => {
         this.loadingProfile = false;
@@ -62,6 +66,21 @@ ngOnInit(): void {
         }
 
         this.errorMessage = error.error?.message || 'Erreur lors du chargement du profil client.';
+      }
+    });
+  }
+
+  loadMyProducts(): void {
+    this.loadingProducts = true;
+
+    this.customerProductApiService.getMyProducts().subscribe({
+      next: (products) => {
+        this.loadingProducts = false;
+        this.products = products;
+      },
+      error: (error) => {
+        this.loadingProducts = false;
+        this.errorMessage = error.error?.message || 'Erreur lors du chargement des produits.';
       }
     });
   }
@@ -85,7 +104,6 @@ ngOnInit(): void {
     const raw = this.form.getRawValue();
 
     const request: CreateCustomerProductRequest = {
-      customerId: this.customerProfile.id,
       productName: raw.productName,
       brand: raw.brand,
       model: raw.model || null,
@@ -98,7 +116,9 @@ ngOnInit(): void {
       next: (product) => {
         this.loading = false;
         this.createdProduct = product;
+        this.products = [product, ...this.products];
         this.successMessage = 'Produit client enregistré avec succès.';
+
         this.form.reset({
           productName: '',
           brand: '',

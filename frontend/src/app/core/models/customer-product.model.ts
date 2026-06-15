@@ -1,6 +1,5 @@
 export interface CreateCustomerProductRequest {
-  customerId: number;
-productName: string;
+  productName: string;
 brand: string;
 model: string | null;
 serialNumber: string;

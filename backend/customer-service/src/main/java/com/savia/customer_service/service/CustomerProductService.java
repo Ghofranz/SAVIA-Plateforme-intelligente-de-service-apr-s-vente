@@ -22,13 +22,16 @@ public class CustomerProductService {
     private final CustomerRepository customerRepository;
 
     @Transactional
-    public CustomerProductResponse createCustomerProduct(CreateCustomerProductRequest request) {
+    public CustomerProductResponse createCustomerProduct(
+            CreateCustomerProductRequest request,
+            Long authUserId
+    ) {
+        Customer customer = customerRepository.findByAuthUserId(authUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer profile not found"));
+
         if (customerProductRepository.existsBySerialNumber(request.serialNumber())) {
             throw new ConflictException("Serial number is already used");
         }
-
-        Customer customer = customerRepository.findById(request.customerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         CustomerProduct product = CustomerProduct.builder()
                 .customer(customer)
@@ -51,6 +54,17 @@ public class CustomerProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer product not found"));
 
         return mapToResponse(product);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CustomerProductResponse> getProductsByAuthUserId(Long authUserId) {
+        Customer customer = customerRepository.findByAuthUserId(authUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer profile not found"));
+
+        return customerProductRepository.findByCustomerId(customer.getId())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
