@@ -37,6 +37,12 @@ loadComponent: () =>
     loadComponent: () =>
       import('./features/sav-cases/sav-cases').then((m) => m.SavCases)
   },
+{
+  path: 'sav-cases/:id',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/sav-case-detail/sav-case-detail').then((m) => m.SavCaseDetail)
+},
   {
     path: '',
     pathMatch: 'full',

@@ -22,3 +22,13 @@ createdAt: string;
 updatedAt: string;
 closedAt: string | null;
 }
+
+export interface SavCaseStatusHistoryResponse {
+id: number;
+savCaseId: number;
+oldStatus: string | null;
+newStatus: string;
+changedByAuthUserId: number;
+comment: string | null;
+changedAt: string;
+}

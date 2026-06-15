@@ -2,7 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { CreateSavCaseRequest, SavCaseResponse } from '../models/sav-case.model';
+import {
+CreateSavCaseRequest,
+SavCaseResponse,
+SavCaseStatusHistoryResponse
+} from '../models/sav-case.model';
 
 @Injectable({
 providedIn: 'root'
@@ -22,5 +26,9 @@ constructor(private readonly http: HttpClient) {}
 
   getSavCaseById(id: number): Observable<SavCaseResponse> {
     return this.http.get<SavCaseResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  getStatusHistory(id: number): Observable<SavCaseStatusHistoryResponse[]> {
+    return this.http.get<SavCaseStatusHistoryResponse[]>(`${this.apiUrl}/${id}/history`);
   }
 }

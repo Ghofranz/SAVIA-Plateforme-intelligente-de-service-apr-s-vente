@@ -179,7 +179,15 @@ table {
     color: #0f172a;
   }
 }
+.case-link {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
 
+  &:hover {
+    text-decoration: underline;
+  }
+}
 @media (max-width: 620px) {
   .page-header {
     padding: 24px 20px;

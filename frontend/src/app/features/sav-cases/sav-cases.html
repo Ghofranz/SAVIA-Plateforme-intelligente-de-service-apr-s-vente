@@ -144,8 +144,11 @@
           <tbody>
           @for (savCase of savCases; track savCase.id) {
           <tr>
-            <td>{{ savCase.caseReference }}</td>
-            <td>{{ productLabel(savCase.customerProductId) }}</td>
+            <td>
+              <a [routerLink]="['/sav-cases', savCase.id]" class="case-link">
+                {{ savCase.caseReference }}
+              </a>
+            </td>            <td>{{ productLabel(savCase.customerProductId) }}</td>
             <td>{{ savCase.title }}</td>
             <td>
                     <span class="status-pill">

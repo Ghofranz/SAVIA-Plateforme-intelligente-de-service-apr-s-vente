@@ -1,0 +1,110 @@
+<div class="detail-page">
+  <header class="page-header">
+    <div>
+      <a routerLink="/sav-cases" class="back-link">← Mes dossiers SAV</a>
+      <h1>Détail dossier SAV</h1>
+      <p>Consulter les informations et l’historique du dossier.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    @if (loading) {
+    <section class="detail-card">
+      <div class="info-message">Chargement du dossier SAV...</div>
+    </section>
+    }
+
+    @if (errorMessage) {
+    <section class="detail-card">
+      <div class="error-message">{{ errorMessage }}</div>
+    </section>
+    }
+
+    @if (savCase) {
+    <section class="detail-card">
+      <div class="case-header">
+        <div>
+          <span class="reference">{{ savCase.caseReference }}</span>
+          <h2>{{ savCase.title }}</h2>
+        </div>
+
+        <span class="status-pill">
+            {{ statusLabel(savCase.status) }}
+          </span>
+      </div>
+
+      <div class="details-grid">
+        <p><strong>ID dossier :</strong> {{ savCase.id }}</p>
+        <p><strong>Priorité :</strong> {{ savCase.priority || 'Non renseignée' }}</p>
+        <p><strong>Créé le :</strong> {{ savCase.createdAt | date:'short' }}</p>
+        <p><strong>Mis à jour le :</strong> {{ savCase.updatedAt | date:'short' }}</p>
+        <p><strong>Fermé le :</strong> {{ savCase.closedAt ? (savCase.closedAt | date:'short') : 'Non fermé' }}</p>
+        <p><strong>ID profil client :</strong> {{ savCase.customerId }}</p>
+        <p><strong>ID produit :</strong> {{ savCase.customerProductId }}</p>
+        <p><strong>Créé par user ID :</strong> {{ savCase.createdByAuthUserId }}</p>
+      </div>
+
+      <div class="description-block">
+        <h3>Description</h3>
+        <p>{{ savCase.description }}</p>
+      </div>
+    </section>
+
+    <section class="detail-card">
+      <h2>Produit concerné</h2>
+
+      @if (product) {
+      <div class="details-grid">
+        <p><strong>Produit :</strong> {{ product.productName }}</p>
+        <p><strong>Marque :</strong> {{ product.brand }}</p>
+        <p><strong>Modèle :</strong> {{ product.model || 'Non renseigné' }}</p>
+        <p><strong>Numéro de série :</strong> {{ product.serialNumber }}</p>
+        <p><strong>Date d’achat :</strong> {{ product.purchaseDate || 'Non renseignée' }}</p>
+        <p><strong>Fin de garantie :</strong> {{ product.warrantyEndDate || 'Non renseignée' }}</p>
+      </div>
+      } @else {
+      <div class="info-message">
+        Produit non chargé ou non accessible.
+      </div>
+      }
+    </section>
+
+    <section class="detail-card">
+      <h2>Historique des statuts</h2>
+
+      @if (loadingHistory) {
+      <div class="info-message">Chargement de l’historique...</div>
+      }
+
+      @if (!loadingHistory && history.length === 0) {
+      <div class="info-message">Aucun changement de statut enregistré.</div>
+      }
+
+      @if (history.length > 0) {
+      <div class="timeline">
+        @for (item of history; track item.id) {
+        <article class="timeline-item">
+          <div class="timeline-dot"></div>
+
+          <div class="timeline-content">
+            <h3>
+              {{ statusLabel(item.oldStatus) }}
+              →
+              {{ statusLabel(item.newStatus) }}
+            </h3>
+
+            <p><strong>Par user ID :</strong> {{ item.changedByAuthUserId }}</p>
+            <p><strong>Date :</strong> {{ item.changedAt | date:'short' }}</p>
+
+            @if (item.comment) {
+            <p><strong>Commentaire :</strong> {{ item.comment }}</p>
+            }
+          </div>
+        </article>
+        }
+      </div>
+      }
+    </section>
+    }
+  </main>
+</div>
