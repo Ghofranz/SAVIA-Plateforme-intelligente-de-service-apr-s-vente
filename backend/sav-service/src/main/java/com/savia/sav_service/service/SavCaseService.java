@@ -8,6 +8,8 @@ import com.savia.sav_service.dto.UpdateSavCaseStatusRequest;
 import com.savia.sav_service.entity.SavCase;
 import com.savia.sav_service.entity.SavCaseStatusHistory;
 import com.savia.sav_service.enums.SavCaseStatus;
+import com.savia.sav_service.event.SavCaseEventProducer;
+import com.savia.sav_service.exception.ResourceNotFoundException;
 import com.savia.sav_service.repository.SavCaseRepository;
 import com.savia.sav_service.repository.SavCaseStatusHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import com.savia.sav_service.event.SavCaseEventProducer;
+
 @Service
 @RequiredArgsConstructor
 public class SavCaseService {
@@ -50,6 +52,7 @@ public class SavCaseService {
                 .build();
 
         statusHistoryRepository.save(history);
+
         savCaseEventProducer.publishSavCaseCreated(savedSavCase);
 
         return mapToResponse(savedSavCase);
@@ -58,7 +61,7 @@ public class SavCaseService {
     @Transactional(readOnly = true)
     public SavCaseResponse getSavCaseById(Long id) {
         SavCase savCase = savCaseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("SAV case not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("SAV case not found"));
 
         return mapToResponse(savCase);
     }
@@ -66,7 +69,7 @@ public class SavCaseService {
     @Transactional(readOnly = true)
     public SavCaseResponse getSavCaseByReference(String caseReference) {
         SavCase savCase = savCaseRepository.findByCaseReference(caseReference)
-                .orElseThrow(() -> new IllegalArgumentException("SAV case not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("SAV case not found"));
 
         return mapToResponse(savCase);
     }
@@ -98,7 +101,7 @@ public class SavCaseService {
     @Transactional
     public SavCaseResponse assignSavCase(Long id, AssignSavCaseRequest request) {
         SavCase savCase = savCaseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("SAV case not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("SAV case not found"));
 
         savCase.setAssignedAgentAuthUserId(request.assignedAgentAuthUserId());
         savCase.setAssignedTechnicianAuthUserId(request.assignedTechnicianAuthUserId());
@@ -115,7 +118,7 @@ public class SavCaseService {
             Long changedByAuthUserId
     ) {
         SavCase savCase = savCaseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("SAV case not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("SAV case not found"));
 
         SavCaseStatus oldStatus = savCase.getStatus();
         SavCaseStatus newStatus = request.newStatus();
@@ -141,6 +144,7 @@ public class SavCaseService {
                 .build();
 
         statusHistoryRepository.save(history);
+
         savCaseEventProducer.publishSavCaseStatusUpdated(
                 savedSavCase,
                 oldStatus,
@@ -154,7 +158,7 @@ public class SavCaseService {
     @Transactional(readOnly = true)
     public List<SavCaseStatusHistoryResponse> getStatusHistory(Long savCaseId) {
         if (!savCaseRepository.existsById(savCaseId)) {
-            throw new IllegalArgumentException("SAV case not found");
+            throw new ResourceNotFoundException("SAV case not found");
         }
 
         return statusHistoryRepository.findBySavCaseIdOrderByChangedAtAsc(savCaseId)
