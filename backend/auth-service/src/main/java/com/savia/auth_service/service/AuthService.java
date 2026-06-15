@@ -5,6 +5,9 @@ import com.savia.auth_service.dto.LoginRequest;
 import com.savia.auth_service.dto.RegisterRequest;
 import com.savia.auth_service.dto.UserProfileResponse;
 import com.savia.auth_service.entity.User;
+import com.savia.auth_service.exception.BadRequestException;
+import com.savia.auth_service.exception.ConflictException;
+import com.savia.auth_service.exception.ResourceNotFoundException;
 import com.savia.auth_service.repository.UserRepository;
 import com.savia.auth_service.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already used");
+            throw new ConflictException("Email is already used");
         }
 
         User user = User.builder()
@@ -46,14 +49,14 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
 
         if (!user.isEnabled()) {
-            throw new IllegalArgumentException("User account is disabled");
+            throw new BadRequestException("User account is disabled");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new BadRequestException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user);
@@ -63,7 +66,7 @@ public class AuthService {
 
     public UserProfileResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
 
         return new UserProfileResponse(
                 user.getId(),
