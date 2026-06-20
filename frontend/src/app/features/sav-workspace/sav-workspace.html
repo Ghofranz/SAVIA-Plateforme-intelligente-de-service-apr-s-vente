@@ -103,7 +103,78 @@
             <p><strong>Créé le :</strong> {{ selectedCase.createdAt | date:'short' }}</p>
           </div>
         </div>
+        <div class="ai-analysis-card">
+          <div class="ai-header">
+            <div>
+              <h3>Analyse IA automatique</h3>
+              <p>Diagnostic généré automatiquement après la création du dossier.</p>
+            </div>
 
+            <button type="button" (click)="loadAiAnalysis(selectedCase.id)">
+              Rafraîchir
+            </button>
+          </div>
+
+          @if (loadingAnalysis) {
+          <div class="info-message">
+            Chargement de l’analyse IA...
+          </div>
+          }
+
+          @if (analysisMessage) {
+          <div class="info-message">
+            {{ analysisMessage }}
+          </div>
+          }
+
+          @if (aiAnalysis) {
+          <div class="ai-status-row">
+      <span class="status-pill">
+        {{ analysisStatusLabel(aiAnalysis.status) }}
+      </span>
+
+            <span>
+        Mise à jour : {{ aiAnalysis.updatedAt | date:'short' }}
+      </span>
+          </div>
+
+          @if (aiAnalysis.status === 'COMPLETED') {
+          <div class="ai-grid">
+            <article class="ai-block">
+              <h4>Diagnostic IA</h4>
+              <p>{{ aiAnalysis.diagnosis || 'Non disponible.' }}</p>
+            </article>
+
+            <article class="ai-block">
+              <h4>Causes possibles</h4>
+              <p>{{ aiAnalysis.possibleCauses || 'Non disponibles.' }}</p>
+            </article>
+
+            <article class="ai-block">
+              <h4>Actions recommandées</h4>
+              <p>{{ aiAnalysis.recommendedActions || 'Non disponibles.' }}</p>
+            </article>
+
+            <article class="ai-block">
+              <h4>Sources RAG</h4>
+              <p>{{ aiAnalysis.ragSources || 'Aucune source disponible.' }}</p>
+            </article>
+          </div>
+          }
+
+          @if (aiAnalysis.status === 'PENDING' || aiAnalysis.status === 'PROCESSING') {
+          <div class="info-message">
+            L’analyse IA est encore en cours. Clique sur “Rafraîchir” dans quelques instants.
+          </div>
+          }
+
+          @if (aiAnalysis.status === 'FAILED') {
+          <div class="error-message">
+            {{ aiAnalysis.errorMessage || 'L’analyse IA a échoué.' }}
+          </div>
+          }
+          }
+        </div>
         <form [formGroup]="form" (ngSubmit)="updateStatus()" class="status-form">
           <label>
             Nouveau statut

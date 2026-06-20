@@ -3,7 +3,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { AiAnalysisApiService } from '../../core/services/ai-analysis-api.service';
 import { SavCaseApiService } from '../../core/services/sav-case-api.service';
+
+import { AiAnalysisResponse } from '../../core/models/ai-analysis.model';
 import { SavCaseResponse, UpdateSavCaseStatusRequest } from '../../core/models/sav-case.model';
 
 @Component({
@@ -16,14 +19,19 @@ styleUrl: './sav-workspace.scss'
 export class SavWorkspace implements OnInit {
 private readonly formBuilder = inject(FormBuilder);
 private readonly savCaseApiService = inject(SavCaseApiService);
+private readonly aiAnalysisApiService = inject(AiAnalysisApiService);
 
 loadingCases = false;
 loadingUpdate = false;
+loadingAnalysis = false;
+
 errorMessage = '';
 successMessage = '';
+analysisMessage = '';
 
 selectedStatus = 'CREATED';
 selectedCase: SavCaseResponse | null = null;
+aiAnalysis: AiAnalysisResponse | null = null;
 savCases: SavCaseResponse[] = [];
 
 readonly statuses = [
@@ -49,6 +57,8 @@ ngOnInit(): void {
   loadCasesByStatus(status: string): void {
     this.selectedStatus = status;
     this.selectedCase = null;
+    this.aiAnalysis = null;
+    this.analysisMessage = '';
     this.loadingCases = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -74,6 +84,31 @@ ngOnInit(): void {
     this.form.patchValue({
       newStatus: savCase.status,
       comment: ''
+    });
+
+    this.loadAiAnalysis(savCase.id);
+  }
+
+  loadAiAnalysis(savCaseId: number): void {
+    this.loadingAnalysis = true;
+    this.analysisMessage = '';
+    this.aiAnalysis = null;
+
+    this.aiAnalysisApiService.getAnalysisBySavCaseId(savCaseId).subscribe({
+      next: (analysis) => {
+        this.loadingAnalysis = false;
+        this.aiAnalysis = analysis;
+      },
+      error: (error) => {
+        this.loadingAnalysis = false;
+
+        if (error.status === 404) {
+          this.analysisMessage = 'Analyse IA non encore disponible pour ce dossier.';
+          return;
+        }
+
+        this.analysisMessage = error.error?.message || 'Erreur lors du chargement de l’analyse IA.';
+      }
     });
   }
 
@@ -130,5 +165,16 @@ ngOnInit(): void {
 
     const statusItem = this.statuses.find((item) => item.value === status);
     return statusItem?.label || status.replaceAll('_', ' ');
+  }
+
+  analysisStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      PENDING: 'En attente',
+      PROCESSING: 'Analyse en cours',
+      COMPLETED: 'Analyse terminée',
+      FAILED: 'Analyse échouée'
+    };
+
+    return labels[status] || status;
   }
 }
