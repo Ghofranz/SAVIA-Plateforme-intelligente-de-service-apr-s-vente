@@ -68,7 +68,80 @@
       </div>
       }
     </section>
+    <section class="detail-card">
+      <div class="ai-header">
+        <div>
+          <h2>Analyse IA automatique</h2>
+          <p>Diagnostic généré automatiquement après la création du dossier SAV.</p>
+        </div>
 
+        @if (savCase) {
+        <button type="button" (click)="loadAiAnalysis(savCase.id)">
+          Rafraîchir
+        </button>
+        }
+      </div>
+
+      @if (loadingAnalysis) {
+      <div class="info-message">
+        Chargement de l’analyse IA...
+      </div>
+      }
+
+      @if (analysisMessage) {
+      <div class="info-message">
+        {{ analysisMessage }}
+      </div>
+      }
+
+      @if (aiAnalysis) {
+      <div class="ai-status-row">
+      <span class="status-pill">
+        {{ analysisStatusLabel(aiAnalysis.status) }}
+      </span>
+
+        <span>
+        Mise à jour : {{ aiAnalysis.updatedAt | date:'short' }}
+      </span>
+      </div>
+
+      @if (aiAnalysis.status === 'COMPLETED') {
+      <div class="ai-grid">
+        <article class="ai-block">
+          <h3>Diagnostic IA</h3>
+          <p>{{ aiAnalysis.diagnosis || 'Non disponible.' }}</p>
+        </article>
+
+        <article class="ai-block">
+          <h3>Causes possibles</h3>
+          <p>{{ aiAnalysis.possibleCauses || 'Non disponibles.' }}</p>
+        </article>
+
+        <article class="ai-block">
+          <h3>Actions recommandées</h3>
+          <p>{{ aiAnalysis.recommendedActions || 'Non disponibles.' }}</p>
+        </article>
+
+        <article class="ai-block">
+          <h3>Sources RAG</h3>
+          <p>{{ aiAnalysis.ragSources || 'Aucune source disponible.' }}</p>
+        </article>
+      </div>
+      }
+
+      @if (aiAnalysis.status === 'PENDING' || aiAnalysis.status === 'PROCESSING') {
+      <div class="info-message">
+        L’analyse IA est en cours. Clique sur “Rafraîchir” dans quelques instants.
+      </div>
+      }
+
+      @if (aiAnalysis.status === 'FAILED') {
+      <div class="error-message">
+        {{ aiAnalysis.errorMessage || 'L’analyse IA a échoué.' }}
+      </div>
+      }
+      }
+    </section>
     <section class="detail-card">
       <h2>Historique des statuts</h2>
 

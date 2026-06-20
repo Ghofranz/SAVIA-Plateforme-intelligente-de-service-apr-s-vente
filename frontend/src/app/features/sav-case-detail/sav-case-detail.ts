@@ -2,8 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { AiAnalysisApiService } from '../../core/services/ai-analysis-api.service';
 import { CustomerProductApiService } from '../../core/services/customer-product-api.service';
 import { SavCaseApiService } from '../../core/services/sav-case-api.service';
+
+import { AiAnalysisResponse } from '../../core/models/ai-analysis.model';
 import { CustomerProductResponse } from '../../core/models/customer-product.model';
 import {
 SavCaseResponse,
@@ -22,14 +25,18 @@ private readonly route = inject(ActivatedRoute);
 private readonly router = inject(Router);
 private readonly savCaseApiService = inject(SavCaseApiService);
 private readonly customerProductApiService = inject(CustomerProductApiService);
+private readonly aiAnalysisApiService = inject(AiAnalysisApiService);
 
 loading = false;
 loadingHistory = false;
+loadingAnalysis = false;
 errorMessage = '';
+analysisMessage = '';
 
 savCase: SavCaseResponse | null = null;
 product: CustomerProductResponse | null = null;
 history: SavCaseStatusHistoryResponse[] = [];
+aiAnalysis: AiAnalysisResponse | null = null;
 
 ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -41,6 +48,7 @@ ngOnInit(): void {
 
     this.loadSavCase(id);
     this.loadHistory(id);
+    this.loadAiAnalysis(id);
   }
 
   loadSavCase(id: number): void {
@@ -86,11 +94,45 @@ ngOnInit(): void {
     });
   }
 
+  loadAiAnalysis(savCaseId: number): void {
+    this.loadingAnalysis = true;
+    this.analysisMessage = '';
+    this.aiAnalysis = null;
+
+    this.aiAnalysisApiService.getAnalysisBySavCaseId(savCaseId).subscribe({
+      next: (analysis) => {
+        this.loadingAnalysis = false;
+        this.aiAnalysis = analysis;
+      },
+      error: (error) => {
+        this.loadingAnalysis = false;
+
+        if (error.status === 404) {
+          this.analysisMessage = 'Analyse IA non encore disponible pour ce dossier.';
+          return;
+        }
+
+        this.analysisMessage = error.error?.message || 'Erreur lors du chargement de l’analyse IA.';
+      }
+    });
+  }
+
   statusLabel(status: string | null): string {
     if (!status) {
       return 'Initial';
     }
 
     return status.replaceAll('_', ' ');
+  }
+
+  analysisStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      PENDING: 'En attente',
+      PROCESSING: 'Analyse en cours',
+      COMPLETED: 'Analyse terminée',
+      FAILED: 'Analyse échouée'
+    };
+
+    return labels[status] || status;
   }
 }
