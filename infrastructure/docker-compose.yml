@@ -35,6 +35,18 @@ services:
     volumes:
       - postgres_sav_data:/var/lib/postgresql/data
 
+  savia-postgres-ai:
+    image: postgres:16
+    container_name: savia-postgres-ai
+    environment:
+      POSTGRES_DB: ai_db
+      POSTGRES_USER: savia
+      POSTGRES_PASSWORD: savia
+    ports:
+      - "5436:5432"
+    volumes:
+      - savia_postgres_ai_data:/var/lib/postgresql/data
+
   kafka:
     image: apache/kafka:3.9.1
     container_name: savia-kafka
@@ -58,3 +70,4 @@ volumes:
   postgres_auth_data:
   postgres_customer_data:
   postgres_sav_data:
+  savia_postgres_ai_data:
