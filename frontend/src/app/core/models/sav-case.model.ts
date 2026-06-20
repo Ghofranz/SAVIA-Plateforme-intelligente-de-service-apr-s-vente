@@ -6,6 +6,11 @@ description: string;
 priority: string | null;
 }
 
+export interface UpdateSavCaseStatusRequest {
+newStatus: string;
+comment: string | null;
+}
+
 export interface SavCaseResponse {
 id: number;
 caseReference: string;

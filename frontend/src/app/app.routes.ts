@@ -43,6 +43,12 @@ loadComponent: () =>
   loadComponent: () =>
     import('./features/sav-case-detail/sav-case-detail').then((m) => m.SavCaseDetail)
 },
+{
+  path: 'sav-workspace',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/sav-workspace/sav-workspace').then((m) => m.SavWorkspace)
+},
   {
     path: '',
     pathMatch: 'full',

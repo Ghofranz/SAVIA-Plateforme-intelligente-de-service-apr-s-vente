@@ -1,0 +1,136 @@
+<div class="workspace-page">
+  <header class="page-header">
+    <div>
+      <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+      <h1>Espace traitement SAV</h1>
+      <p>Suivre et mettre à jour les dossiers SAV côté équipe interne.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="filter-card">
+      <h2>Filtrer par statut</h2>
+
+      <div class="status-filters">
+        @for (status of statuses; track status.value) {
+        <button
+          type="button"
+          [class.active]="selectedStatus === status.value"
+          (click)="loadCasesByStatus(status.value)"
+        >
+          {{ status.label }}
+        </button>
+        }
+      </div>
+    </section>
+
+    @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+    }
+
+    @if (successMessage) {
+    <div class="success-message">
+      {{ successMessage }}
+    </div>
+    }
+
+    <section class="workspace-grid">
+      <section class="cases-card">
+        <h2>Dossiers {{ statusLabel(selectedStatus) }}</h2>
+
+        @if (loadingCases) {
+        <div class="info-message">
+          Chargement des dossiers SAV...
+        </div>
+        }
+
+        @if (!loadingCases && savCases.length === 0) {
+        <div class="info-message">
+          Aucun dossier SAV avec ce statut.
+        </div>
+        }
+
+        @if (savCases.length > 0) {
+        <div class="cases-list">
+          @for (savCase of savCases; track savCase.id) {
+          <article
+            class="case-item"
+            [class.selected]="selectedCase?.id === savCase.id"
+            (click)="selectCase(savCase)"
+          >
+            <div>
+              <span class="reference">{{ savCase.caseReference }}</span>
+              <h3>{{ savCase.title }}</h3>
+              <p>{{ savCase.description }}</p>
+            </div>
+
+            <div class="case-meta">
+              <span class="status-pill">{{ statusLabel(savCase.status) }}</span>
+              <span>{{ savCase.priority || 'Sans priorité' }}</span>
+              <a [routerLink]="['/sav-cases', savCase.id]" (click)="$event.stopPropagation()">
+                Détail
+              </a>
+            </div>
+          </article>
+          }
+        </div>
+        }
+      </section>
+
+      <section class="update-card">
+        <h2>Traitement du dossier</h2>
+
+        @if (!selectedCase) {
+        <div class="info-message">
+          Sélectionne un dossier dans la liste pour modifier son statut.
+        </div>
+        }
+
+        @if (selectedCase) {
+        <div class="selected-summary">
+          <span class="reference">{{ selectedCase.caseReference }}</span>
+          <h3>{{ selectedCase.title }}</h3>
+          <p>{{ selectedCase.description }}</p>
+
+          <div class="summary-grid">
+            <p><strong>ID :</strong> {{ selectedCase.id }}</p>
+            <p><strong>Client :</strong> {{ selectedCase.customerId }}</p>
+            <p><strong>Produit :</strong> {{ selectedCase.customerProductId }}</p>
+            <p><strong>Statut actuel :</strong> {{ statusLabel(selectedCase.status) }}</p>
+            <p><strong>Priorité :</strong> {{ selectedCase.priority || 'Non renseignée' }}</p>
+            <p><strong>Créé le :</strong> {{ selectedCase.createdAt | date:'short' }}</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="updateStatus()" class="status-form">
+          <label>
+            Nouveau statut
+            <select formControlName="newStatus">
+              @for (status of statuses; track status.value) {
+              <option [value]="status.value">
+                {{ status.label }}
+              </option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Commentaire
+            <textarea
+              formControlName="comment"
+              rows="4"
+              placeholder="Ajouter un commentaire sur le traitement..."
+            ></textarea>
+          </label>
+
+          <button type="submit" [disabled]="loadingUpdate">
+            {{ loadingUpdate ? 'Mise à jour...' : 'Mettre à jour le statut' }}
+          </button>
+        </form>
+        }
+      </section>
+    </section>
+  </main>
+</div>

@@ -5,7 +5,8 @@ import { Observable } from 'rxjs';
 import {
 CreateSavCaseRequest,
 SavCaseResponse,
-SavCaseStatusHistoryResponse
+SavCaseStatusHistoryResponse,
+UpdateSavCaseStatusRequest
 } from '../models/sav-case.model';
 
 @Injectable({
@@ -24,8 +25,16 @@ constructor(private readonly http: HttpClient) {}
     return this.http.get<SavCaseResponse[]>(`${this.apiUrl}/customer/${customerId}`);
   }
 
+  getSavCasesByStatus(status: string): Observable<SavCaseResponse[]> {
+    return this.http.get<SavCaseResponse[]>(`${this.apiUrl}/status/${status}`);
+  }
+
   getSavCaseById(id: number): Observable<SavCaseResponse> {
     return this.http.get<SavCaseResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  updateSavCaseStatus(id: number, request: UpdateSavCaseStatusRequest): Observable<SavCaseResponse> {
+    return this.http.put<SavCaseResponse>(`${this.apiUrl}/${id}/status`, request);
   }
 
   getStatusHistory(id: number): Observable<SavCaseStatusHistoryResponse[]> {
