@@ -20,7 +20,7 @@ public class SavCaseCreatedConsumer {
     public void consumeSavCaseCreated(SavCaseCreatedEvent event) {
         log.info("Received sav.case.created event for SAV case id: {}", event.savCaseId());
 
-        aiAnalysisService.createPendingAnalysis(event);
+        aiAnalysisService.handleSavCaseCreated(event);
 
         log.info("Pending AI analysis created for SAV case id: {}", event.savCaseId());
     }

@@ -1,6 +1,7 @@
 package com.savia.ai_service.service;
 
 import com.savia.ai_service.dto.AiAnalysisResponse;
+import com.savia.ai_service.dto.AiDiagnosisResult;
 import com.savia.ai_service.entity.AiAnalysis;
 import com.savia.ai_service.enums.AiAnalysisStatus;
 import com.savia.ai_service.event.SavCaseCreatedEvent;
@@ -14,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class AiAnalysisService {
 
     private final AiAnalysisRepository aiAnalysisRepository;
+    private final AiDiagnosisGenerator aiDiagnosisGenerator;
 
-    @Transactional
-    public void createPendingAnalysis(SavCaseCreatedEvent event) {
+    public void handleSavCaseCreated(SavCaseCreatedEvent event) {
         if (aiAnalysisRepository.existsBySavCaseId(event.savCaseId())) {
             return;
         }
@@ -29,7 +30,28 @@ public class AiAnalysisService {
                 .status(AiAnalysisStatus.PENDING)
                 .build();
 
-        aiAnalysisRepository.save(analysis);
+        analysis = aiAnalysisRepository.save(analysis);
+
+        try {
+            analysis.setStatus(AiAnalysisStatus.PROCESSING);
+            analysis = aiAnalysisRepository.save(analysis);
+
+            AiDiagnosisResult result = aiDiagnosisGenerator.generateDiagnosis(event);
+
+            analysis.setDiagnosis(result.diagnosis());
+            analysis.setPossibleCauses(result.possibleCauses());
+            analysis.setRecommendedActions(result.recommendedActions());
+            analysis.setRagSources(result.ragSources());
+            analysis.setStatus(AiAnalysisStatus.COMPLETED);
+            analysis.setErrorMessage(null);
+
+            aiAnalysisRepository.save(analysis);
+        } catch (Exception exception) {
+            analysis.setStatus(AiAnalysisStatus.FAILED);
+            analysis.setErrorMessage(exception.getMessage());
+
+            aiAnalysisRepository.save(analysis);
+        }
     }
 
     @Transactional(readOnly = true)
