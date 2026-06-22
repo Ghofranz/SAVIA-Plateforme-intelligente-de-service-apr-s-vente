@@ -22,8 +22,8 @@ public class SavCaseEventProducer {
                 savCase.getCustomerProductId(),
                 savCase.getCreatedByAuthUserId(),
                 savCase.getTitle(),
-                savCase.getStatus().name(),
-                savCase.getPriority().name(),
+                savCase.getDescription(),
+                savCase.getPriority() == null ? null : savCase.getPriority().name(),
                 savCase.getCreatedAt()
         );
 
@@ -33,7 +33,6 @@ public class SavCaseEventProducer {
                 event
         );
     }
-
     public void publishSavCaseStatusUpdated(
             SavCase savCase,
             SavCaseStatus oldStatus,

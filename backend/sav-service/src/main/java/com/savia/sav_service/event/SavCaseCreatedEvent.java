@@ -9,7 +9,7 @@ public record SavCaseCreatedEvent(
         Long customerProductId,
         Long createdByAuthUserId,
         String title,
-        String status,
+        String description,
         String priority,
         LocalDateTime createdAt
 ) {
