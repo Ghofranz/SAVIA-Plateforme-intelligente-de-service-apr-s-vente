@@ -19,8 +19,8 @@ public class RagRetrievalService {
         List<Document> documents = vectorStore.similaritySearch(
                 SearchRequest.builder()
                         .query(query)
-                        .topK(3)
-                        .similarityThreshold(0.55)
+                        .topK(5)
+                        .similarityThreshold(0.50)
                         .build()
         );
 

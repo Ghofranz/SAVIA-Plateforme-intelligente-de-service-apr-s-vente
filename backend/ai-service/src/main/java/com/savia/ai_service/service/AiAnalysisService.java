@@ -27,6 +27,8 @@ public class AiAnalysisService {
                 .caseReference(event.caseReference())
                 .customerId(event.customerId())
                 .customerProductId(event.customerProductId())
+                .originalTitle(event.title())
+                .originalDescription(event.description())
                 .status(AiAnalysisStatus.PENDING)
                 .build();
 

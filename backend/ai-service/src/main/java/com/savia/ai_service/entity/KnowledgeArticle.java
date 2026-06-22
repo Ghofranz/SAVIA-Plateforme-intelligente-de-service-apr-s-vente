@@ -1,19 +1,19 @@
 package com.savia.ai_service.entity;
 
-import com.savia.ai_service.enums.AiAnalysisStatus;
+import com.savia.ai_service.enums.KnowledgeArticleStatus;
 import jakarta.persistence.*;
-import lombok.*;
+        import lombok.*;
 
-import java.time.LocalDateTime;
+        import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ai_analysis")
+@Table(name = "knowledge_articles")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AiAnalysis {
+public class KnowledgeArticle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,39 +25,41 @@ public class AiAnalysis {
     @Column(nullable = false)
     private String caseReference;
 
-    @Column(nullable = false)
-    private Long customerId;
+    private Long customerProductId;
 
     @Column(nullable = false)
-    private Long customerProductId;
+    private String sourceStatus;
+
+    @Column(columnDefinition = "TEXT")
+    private String originalProblem;
+
+    @Column(columnDefinition = "TEXT")
+    private String resolutionComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String symptomSummary;
+
+    @Column(columnDefinition = "TEXT")
+    private String confirmedCause;
+
+    @Column(columnDefinition = "TEXT")
+    private String appliedSolution;
+
+    @Column(columnDefinition = "TEXT")
+    private String reusableKnowledge;
+
+    @Column(columnDefinition = "TEXT")
+    private String tags;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AiAnalysisStatus status;
+    private KnowledgeArticleStatus status;
 
-    @Column(columnDefinition = "TEXT")
-    private String diagnosis;
-
-    @Column(columnDefinition = "TEXT")
-    private String possibleCauses;
-
-    @Column(columnDefinition = "TEXT")
-    private String recommendedActions;
-
-    @Column(columnDefinition = "TEXT")
-    private String ragSources;
-
-    @Column(columnDefinition = "TEXT")
-    private String errorMessage;
+    @Column(nullable = false)
+    private boolean indexedInRag;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(columnDefinition = "TEXT")
-    private String originalTitle;
-
-    @Column(columnDefinition = "TEXT")
-    private String originalDescription;
 
     private LocalDateTime updatedAt;
 
@@ -65,6 +67,11 @@ public class AiAnalysis {
     void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        indexedInRag = false;
+
+        if (status == null) {
+            status = KnowledgeArticleStatus.DRAFT;
+        }
     }
 
     @PreUpdate
