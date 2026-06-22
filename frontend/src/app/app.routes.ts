@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 
+import { KnowledgeBase } from './features/knowledge-base/knowledge-base';
+
 export const routes: Routes = [
 {
 path: 'login',
@@ -48,6 +50,11 @@ loadComponent: () =>
   canActivate: [authGuard],
   loadComponent: () =>
     import('./features/sav-workspace/sav-workspace').then((m) => m.SavWorkspace)
+},
+{
+  path: 'knowledge-base',
+  component: KnowledgeBase,
+  canActivate: [authGuard]
 },
   {
     path: '',

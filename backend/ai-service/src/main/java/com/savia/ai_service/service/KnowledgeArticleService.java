@@ -1,5 +1,6 @@
 package com.savia.ai_service.service;
 
+import com.savia.ai_service.dto.KnowledgeArticleResponse;
 import com.savia.ai_service.entity.AiAnalysis;
 import com.savia.ai_service.entity.KnowledgeArticle;
 import com.savia.ai_service.enums.KnowledgeArticleStatus;
@@ -11,15 +12,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class KnowledgeArticleService {
 
-    private final KnowledgeArticleRagIndexer knowledgeArticleRagIndexer;
     private final KnowledgeArticleRepository knowledgeArticleRepository;
     private final AiAnalysisRepository aiAnalysisRepository;
     private final KnowledgeArticleGenerator knowledgeArticleGenerator;
+    private final KnowledgeArticleRagIndexer knowledgeArticleRagIndexer;
 
     @Transactional
     public void handleSavCaseStatusUpdated(SavCaseStatusUpdatedEvent event) {
@@ -67,23 +70,75 @@ public class KnowledgeArticleService {
 
         KnowledgeArticle savedArticle = knowledgeArticleRepository.save(article);
 
-        try {
+        log.info(
+                "Generated DRAFT knowledge article {} for SAV case {}. Waiting for human validation before RAG indexing.",
+                savedArticle.getId(),
+                event.savCaseId()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<KnowledgeArticleResponse> getAllArticles() {
+        return knowledgeArticleRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public KnowledgeArticleResponse getArticleById(Long id) {
+        KnowledgeArticle article = knowledgeArticleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Knowledge article not found with id: " + id));
+
+        return mapToResponse(article);
+    }
+
+    @Transactional
+    public KnowledgeArticleResponse validateArticle(Long id) {
+        KnowledgeArticle article = knowledgeArticleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Knowledge article not found with id: " + id));
+
+        if (article.getStatus() == KnowledgeArticleStatus.ARCHIVED) {
+            throw new IllegalStateException("Archived knowledge articles cannot be validated.");
+        }
+
+        article.setStatus(KnowledgeArticleStatus.VALIDATED);
+
+        KnowledgeArticle savedArticle = knowledgeArticleRepository.save(article);
+
+        if (!savedArticle.isIndexedInRag()) {
             knowledgeArticleRagIndexer.indexArticle(savedArticle);
             savedArticle.setIndexedInRag(true);
-            knowledgeArticleRepository.save(savedArticle);
-        } catch (Exception exception) {
-            log.warn(
-                    "Knowledge article {} was saved but could not be indexed into RAG.",
-                    savedArticle.getId(),
-                    exception
-            );
+            savedArticle = knowledgeArticleRepository.save(savedArticle);
         }
 
         log.info(
-                "Generated knowledge article for SAV case {} with status {}.",
-                event.savCaseId(),
-                event.newStatus()
+                "Knowledge article {} validated and indexed into RAG.",
+                savedArticle.getId()
         );
+
+        return mapToResponse(savedArticle);
+    }
+
+    @Transactional
+    public KnowledgeArticleResponse archiveArticle(Long id) {
+        KnowledgeArticle article = knowledgeArticleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Knowledge article not found with id: " + id));
+
+        if (article.isIndexedInRag()) {
+            throw new IllegalStateException(
+                    "This article is already indexed in the current in-memory RAG. Restart ai-service after archiving to remove it from the active vector store."
+            );
+        }
+
+        article.setStatus(KnowledgeArticleStatus.ARCHIVED);
+        article.setIndexedInRag(false);
+
+        KnowledgeArticle savedArticle = knowledgeArticleRepository.save(article);
+
+        log.info("Knowledge article {} archived.", savedArticle.getId());
+
+        return mapToResponse(savedArticle);
     }
 
     private boolean isKnowledgeStatus(String status) {
@@ -129,6 +184,27 @@ public class KnowledgeArticleService {
                 safe(analysis.getOriginalTitle()),
                 safe(analysis.getOriginalDescription()),
                 safe(analysis.getDiagnosis())
+        );
+    }
+
+    private KnowledgeArticleResponse mapToResponse(KnowledgeArticle article) {
+        return new KnowledgeArticleResponse(
+                article.getId(),
+                article.getSavCaseId(),
+                article.getCaseReference(),
+                article.getCustomerProductId(),
+                article.getSourceStatus(),
+                article.getOriginalProblem(),
+                article.getResolutionComment(),
+                article.getSymptomSummary(),
+                article.getConfirmedCause(),
+                article.getAppliedSolution(),
+                article.getReusableKnowledge(),
+                article.getTags(),
+                article.getStatus(),
+                article.isIndexedInRag(),
+                article.getCreatedAt(),
+                article.getUpdatedAt()
         );
     }
 

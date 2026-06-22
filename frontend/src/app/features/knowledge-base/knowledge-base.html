@@ -1,0 +1,243 @@
+<section class="knowledge-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Base de connaissance SAVIA</p>
+      <h1>Validation des fiches de connaissance</h1>
+      <p>
+        Les fiches générées automatiquement par l’IA doivent être validées par un agent ou un admin
+        avant d’être utilisées dans le RAG.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/sav-workspace">Retour espace SAV</a>
+      <button type="button" (click)="loadArticles()" [disabled]="loading()">
+        {{ loading() ? 'Chargement...' : 'Rafraîchir' }}
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+  <div class="error-message">
+    {{ errorMessage() }}
+  </div>
+  }
+
+  @if (successMessage()) {
+  <div class="success-message">
+    {{ successMessage() }}
+  </div>
+  }
+
+  <div class="status-tabs">
+    <button
+      type="button"
+      [class.active]="selectedStatus() === 'DRAFT'"
+      (click)="selectStatus('DRAFT')"
+    >
+      À valider
+      <span>{{ countByStatus('DRAFT') }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="selectedStatus() === 'VALIDATED'"
+      (click)="selectStatus('VALIDATED')"
+    >
+      Validées
+      <span>{{ countByStatus('VALIDATED') }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="selectedStatus() === 'ARCHIVED'"
+      (click)="selectStatus('ARCHIVED')"
+    >
+      Archivées
+      <span>{{ countByStatus('ARCHIVED') }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="selectedStatus() === 'ALL'"
+      (click)="selectStatus('ALL')"
+    >
+      Toutes
+      <span>{{ countByStatus('ALL') }}</span>
+    </button>
+  </div>
+
+  <div class="knowledge-layout">
+    <aside class="article-list">
+      @if (loading()) {
+      <div class="empty-state">
+        Chargement des fiches...
+      </div>
+      }
+
+      @if (!loading() && filteredArticles().length === 0) {
+      <div class="empty-state">
+        Aucune fiche dans cette catégorie.
+      </div>
+      }
+
+      @for (article of filteredArticles(); track article.id) {
+      <article
+        class="article-card"
+        [class.selected]="selectedArticle()?.id === article.id"
+        (click)="selectArticle(article)"
+      >
+        <div class="article-topline">
+          <span class="case-ref">{{ article.caseReference }}</span>
+          <span class="status-pill" [class]="statusClass(article.status)">
+              {{ statusLabel(article.status) }}
+            </span>
+        </div>
+
+        <h2>{{ article.symptomSummary || 'Symptôme non disponible' }}</h2>
+
+        <p>
+          {{ article.reusableKnowledge || 'Connaissance réutilisable non disponible.' }}
+        </p>
+
+        <div class="article-meta">
+          <span>Dossier #{{ article.savCaseId }}</span>
+          <span>{{ article.createdAt | date:'short' }}</span>
+        </div>
+      </article>
+      }
+    </aside>
+
+    <main class="article-detail">
+      @if (!selectedArticle()) {
+      <div class="detail-placeholder">
+        <h2>Sélectionne une fiche</h2>
+        <p>
+          Choisis une fiche à gauche pour vérifier son contenu, puis valide-la si elle est correcte.
+        </p>
+      </div>
+      }
+
+      @if (selectedArticle(); as article) {
+      <div class="detail-card">
+        <div class="detail-header">
+          <div>
+            <span class="case-ref">{{ article.caseReference }}</span>
+            <h2>{{ article.symptomSummary || 'Fiche de connaissance' }}</h2>
+
+            <div class="detail-badges">
+                <span class="status-pill" [class]="statusClass(article.status)">
+                  {{ statusLabel(article.status) }}
+                </span>
+
+              @if (article.indexedInRag) {
+              <span class="rag-pill indexed">Indexée dans le RAG</span>
+              } @else {
+              <span class="rag-pill not-indexed">Non indexée</span>
+              }
+            </div>
+          </div>
+
+          <div class="detail-actions">
+            @if (article.status === 'DRAFT') {
+            <button
+              type="button"
+              class="validate-btn"
+              (click)="validateArticle(article)"
+              [disabled]="actionLoading()"
+            >
+              {{ actionLoading() ? 'Validation...' : 'Valider et indexer' }}
+            </button>
+
+            <button
+              type="button"
+              class="archive-btn"
+              (click)="archiveArticle(article)"
+              [disabled]="actionLoading()"
+            >
+              Archiver
+            </button>
+            }
+
+            @if (article.status === 'VALIDATED') {
+            <button type="button" class="disabled-btn" disabled>
+              Déjà validée
+            </button>
+            }
+
+            @if (article.status === 'ARCHIVED') {
+            <button type="button" class="disabled-btn" disabled>
+              Archivée
+            </button>
+            }
+          </div>
+        </div>
+
+        <section class="info-grid">
+          <article>
+            <h3>Cause confirmée / probable</h3>
+            <p>{{ article.confirmedCause || 'Non disponible.' }}</p>
+          </article>
+
+          <article>
+            <h3>Solution appliquée</h3>
+            <p>{{ article.appliedSolution || 'Non disponible.' }}</p>
+          </article>
+
+          <article>
+            <h3>Connaissance réutilisable</h3>
+            <p>{{ article.reusableKnowledge || 'Non disponible.' }}</p>
+          </article>
+
+          <article>
+            <h3>Tags</h3>
+            <p>{{ article.tags || 'Aucun tag.' }}</p>
+          </article>
+        </section>
+
+        <section class="long-block">
+          <h3>Problème initial</h3>
+          <p>{{ article.originalProblem || 'Non disponible.' }}</p>
+        </section>
+
+        <section class="long-block">
+          <h3>Commentaire de résolution</h3>
+          <p>{{ article.resolutionComment || 'Non disponible.' }}</p>
+        </section>
+
+        <section class="technical-info">
+          <div>
+            <span>ID fiche</span>
+            <strong>{{ article.id }}</strong>
+          </div>
+
+          <div>
+            <span>ID dossier SAV</span>
+            <strong>{{ article.savCaseId }}</strong>
+          </div>
+
+          <div>
+            <span>ID produit client</span>
+            <strong>{{ article.customerProductId || 'N/A' }}</strong>
+          </div>
+
+          <div>
+            <span>Statut source</span>
+            <strong>{{ article.sourceStatus }}</strong>
+          </div>
+
+          <div>
+            <span>Créée le</span>
+            <strong>{{ article.createdAt | date:'short' }}</strong>
+          </div>
+
+          <div>
+            <span>Mise à jour</span>
+            <strong>{{ article.updatedAt | date:'short' }}</strong>
+          </div>
+        </section>
+      </div>
+      }
+    </main>
+  </div>
+</section>

@@ -26,8 +26,12 @@ public class KnowledgeArticleRagIndexer {
             return;
         }
 
-        if (article.getStatus() == KnowledgeArticleStatus.ARCHIVED) {
-            log.info("Knowledge article {} is archived. Skipping RAG indexing.", article.getId());
+        if (article.getStatus() != KnowledgeArticleStatus.VALIDATED) {
+            log.info(
+                    "Knowledge article {} has status {}. It will not be indexed until validation.",
+                    article.getId(),
+                    article.getStatus()
+            );
             return;
         }
 
@@ -53,14 +57,14 @@ public class KnowledgeArticleRagIndexer {
         vectorStore.add(List.of(document));
 
         log.info(
-                "Indexed knowledge article {} into RAG vector store for SAV case {}.",
+                "Indexed VALIDATED knowledge article {} into RAG vector store for SAV case {}.",
                 article.getId(),
                 article.getSavCaseId()
         );
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public void indexExistingKnowledgeArticlesOnStartup() {
+    public void indexValidatedKnowledgeArticlesOnStartup() {
         List<KnowledgeArticle> articles = knowledgeArticleRepository.findAll();
 
         if (articles.isEmpty()) {
@@ -71,7 +75,7 @@ public class KnowledgeArticleRagIndexer {
         int indexedCount = 0;
 
         for (KnowledgeArticle article : articles) {
-            if (article.getStatus() == KnowledgeArticleStatus.ARCHIVED) {
+            if (article.getStatus() != KnowledgeArticleStatus.VALIDATED) {
                 continue;
             }
 
@@ -79,12 +83,12 @@ public class KnowledgeArticleRagIndexer {
             indexedCount++;
         }
 
-        log.info("Indexed {} existing knowledge articles into RAG vector store on startup.", indexedCount);
+        log.info("Indexed {} validated knowledge articles into RAG vector store on startup.", indexedCount);
     }
 
     private String buildRagText(KnowledgeArticle article) {
         return """
-                Type de source : fiche de connaissance issue d'un dossier SAV résolu
+                Type de source : fiche de connaissance validée issue d'un dossier SAV résolu
                 Référence dossier : %s
                 ID dossier SAV : %s
                 ID produit client : %s
